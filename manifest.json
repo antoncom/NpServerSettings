@@ -1,0 +1,23 @@
+{
+    "manifest_version": 1.0,
+    "id": "np_server_settings",
+    "name": "NP_server_settings",
+    "version": "1.0",
+    "namespace": "NetPing Zabbix",
+    "author": "Anton Gavrilyuk",
+    "url": "http://www.netpingdevice.com",
+    "description": "The module adds menu option “Server settings” to Zabbix Interface. Using the module user can edit network parameters of DKST 90 device.",
+    "actions": {
+        "serv_setting.view": {
+            "class": "ServSettingView",
+            "view": "module.serv_setting.view"
+        },
+        "serv_setting.save": {
+            "class": "ServSettingSave",
+            "layout": null
+        }
+    },
+    "config": {
+        "username": "anton_gavrilyuk"
+    }
+}
