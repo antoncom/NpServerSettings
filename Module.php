@@ -1,6 +1,6 @@
 <?php declare(strict_types = 1);
  
-namespace Modules\NetPing;
+namespace Modules\MaintenanceOneClic;
  
 use APP;
 use CController as CAction;
@@ -16,11 +16,11 @@ class Module extends \Core\CModule {
 	public function init(): void {
 		// Initialize main menu (CMenu class instance).
 		APP::Component()->get('menu.main')
-			->findOrAdd(_('NetPing'))
+			->findOrAdd(_('Configuration'))
 				->getSubmenu()
-					->add((new \CMenuItem(_('Server settings')))
-						->setAction('serv_setting.php')
-					)
+					->insertAfter(_('Maintenance'),((new \CMenuItem(_('NetPing Server Settings')))
+						->setAction('maintenanceoneclic.view'))
+					);
 	}
  
 	/**

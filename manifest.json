@@ -1,23 +1,16 @@
 {
     "manifest_version": 1.0,
-    "id": "np_server_settings",
-    "name": "NP_server_settings",
+    "id": "maintenance_one_clic",
+    "name": "Maintenance One Clic Custom",
     "version": "1.0",
-    "namespace": "NetPing Zabbix",
-    "author": "Anton Gavrilyuk",
-    "url": "http://www.netpingdevice.com",
-    "description": "The module adds menu option “Server settings” to Zabbix Interface. Using the module user can edit network parameters of DKST 90 device.",
+    "namespace": "MaintenanceOneClic",
+    "author": "Mickael Martin",
+    "url": "https://framagit.org/zabbix-modules/zabbix-one-clic-maintenance",
+    "description": "Add menu to add fast maintenance.",
     "actions": {
-        "serv_setting.view": {
-            "class": "ServSettingView",
-            "view": "module.serv_setting.view"
-        },
-        "serv_setting.save": {
-            "class": "ServSettingSave",
-            "layout": null
+        "maintenanceoneclic.view": {
+            "class": "MaintenanceOneClicView",
+            "view": "module.maintenanceoneclic.view"
         }
-    },
-    "config": {
-        "username": "anton_gavrilyuk"
     }
 }

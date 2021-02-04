@@ -1,16 +1,17 @@
 <?php declare(strict_types = 1);
  
-namespace Modules\NetPing\Actions;
+namespace Modules\MaintenanceOneClic\Actions;
  
 use CControllerResponseData;
 use CControllerResponseFatal;
+use CScript;
+use API;
 use CController as CAction;
  
 /**
  * Example module action.
  */
-class SomethingView extends CAction {
- 
+class MaintenanceOneClicView extends CAction {
 	/**
 	 * Initialize action. Method called by Zabbix core.
 	 *
@@ -32,20 +33,47 @@ class SomethingView extends CAction {
 	 */
 	protected function checkInput(): bool {
 		$fields = [
-			'ipv4_type' => 'required|string', /* DHCP or Static*/
-			'ipv4'  => 'string',
-			'gate_ip' => 'required|string',
-			'dns_basic' => 'required|string',
-			'dns_extra' => 'string'
+			'gate_address' 		=> 'string|not_empty',
+			/*
+			'ipv4_static'  		=> 'string',
+			'gate_address' 		=> 'string|not_empty',
+	        'dns_address_basic' => 'string|not_empty',
+	        'dns_address_extra' => 'string'
+	        */
 		];
- 
-		// Only validated data will further be available using $this->hasInput() and $this->getInput().
-		$ret = $this->validateInput($fields);
- 
-		if (!$ret) {
-			$this->setResponse(new CControllerResponseFatal());
-		}
- 
+		/*
+			'ipv4_type'			=> 'required|string|not_empty',
+	        'ipv4_static'  		=> 'required|string|not_empty',
+	        'gate_address' 		=> 'required|string|not_empty',
+	        'dns_address_basic' => 'required|string|not_empty',
+	        'dns_address_extra' => 'string'
+        ];
+        */
+
+        // $result = CScript();
+
+        /*
+
+        if(sizeof($_POST) > 0) {
+			$log = date('Y-m-d H:i:s') . ' ' . print_r($_POST, true);;
+        	file_put_contents(__DIR__ . '/log.txt', $result . PHP_EOL, FILE_APPEND);
+        } else {
+        	file_put_contents(__DIR__ . '/log.txt', "..no POST data.." . PHP_EOL, FILE_APPEND);
+        }
+        */
+
+        //$log = date('Y-m-d H:i:s') . ' ' . print_r($_POST, true);
+        //file_put_contents(__DIR__ . '/log.txt', $result . PHP_EOL, FILE_APPEND);
+
+        
+        
+
+        // Only validated data will further be available using $this->hasInput() and $this->getInput().
+        $ret = $this->validateInput($fields);
+
+        if (!$ret) {
+            $this->setResponse(new CControllerResponseFatal());
+        }
 		return $ret;
 	}
  
@@ -67,19 +95,11 @@ class SomethingView extends CAction {
 	 * @return void
 	 */
 	protected function doAction(): void {
-		$data = [
-			'ipv4_type' => $this->getInput('ipv4_type'),
-			'gate_ip' => $this->getInput('gate_ip'),
-			'dns_basic' => $this->getInput('dns_basic'),
-			'dns_extra' => $this->getInput('dns_extra'),
-		];
 
-		if($this->getInput('ipv4_type') = "static") {
-			'ipv4' => $this->getInput('ipv4'),
-		}
+		$data = [];
  
 		$response = new CControllerResponseData($data);
  
 		$this->setResponse($response);
-	}
+	} 
 }
