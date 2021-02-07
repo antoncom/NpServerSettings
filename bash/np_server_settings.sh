@@ -1,8 +1,29 @@
 #!/bin/bash
 
-# How to use the CLI
+############################################################
+### How to use the CLI of "np_server_settings.sh" Script ###
+############################################################
+
+### GET Server Settings
+# ---------------------
 # np_server_settings.sh --device="enp0s3" --command=get 
+# -----------------------------------------------------
+# ipv4.method:                            manual
+# ipv4.dns:                               8.8.8.8
+# ipv4.addresses:                         192.168.0.2/24
+# ipv4.gateway:                           192.168.0.1
+
+### SET Server Settings
+# ---------------------
 # np_server_settings.sh --device="enp0s3" --command=set --ipv4=192.168.0.1/24 --dhcp=auto --gateway=192.168.0.1 --dns1=8.8.8.8 --dns2=9.9.9.9
+# -------------------------------------------------------------------------------------------------------------------------------------------
+
+### ERRORS AND STATUSES (examples of output messages)
+#----------------------------------------------------
+# Error: Input key is not found: --some-wrong-key=1
+# Connection 'enp0s3' successfully deactivated (D-Bus active path org/freedesktop/NetworkManager/ActiveConnection/1)
+# Connection successfully activated (D-Bus active path: /org/freedesktop/NetworkManager/ActiveConnection/4)
+# Connection 'enp0s3' deactivation failed : Not authorized to deactivate connections.
 
 device=0
 command=0
@@ -17,6 +38,9 @@ msg_filter=''
 
 err_code=0
 
+######################################################################
+# These two common functions are required to parse input keys/values #
+######################################################################
 
 procParmL() 
 { 
@@ -24,8 +48,8 @@ procParmL()
    if [ "${2#$1=}" != "$2" ] ; then 
       cRes="${2#$1=}" 
       return 0 
-   fi 
-   return 1 
+   fi
+   return 1
 } 
 
 while [ 1 ] ; do 
@@ -46,12 +70,13 @@ while [ 1 ] ; do
    	elif [ -z "$1" ] ; then 
     	break # Ключи кончились 
    	else 
-    	echo "Ошибка: неизвестный ключ" 1>&2 
+    	echo "Error: Input key is not found: ${1}" 1>&2 
     	exit 1 
    fi
    shift
 done
 
+# addMsgFilter is required to assemble filtering mask which is applied to output data
 addMsgFilter()
 {
 
@@ -97,4 +122,8 @@ elif [ $command == "set" ] ; then
 
 	nmcli connection down $device
 	nmcli connection up $device
+	
+	#msg_filter="ipv4.addresses:|ipv4.dns:|ipv4.gateway:|ipv4.method:"
+	#nmcli conn show $device | grep -E "${msg_filter}"
+
 fi
