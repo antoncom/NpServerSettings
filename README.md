@@ -23,9 +23,9 @@
 [Универсальный метод валидации html-форм NetPing](https://netping.atlassian.net/wiki/spaces/PROJ/pages/2809857522/html-)
 
 Проверочные диаграммы валидации полей формы:
-* IP v4 адрес (статический)
-* Адрес гейта
-* Адрес DNS сервера
+* [IP v4 адрес (статический)](http://htmlpreview.github.io/?https://github.com/antoncom/NpServerSettings/blob/main/npm/ipv4.html)
+* [Адрес гейта](http://htmlpreview.github.io/?https://github.com/antoncom/NpServerSettings/blob/main/npm/ip_single.html)
+* [Адрес DNS сервера](http://htmlpreview.github.io/?https://github.com/antoncom/NpServerSettings/blob/main/npm/ip_single.html)
 
 ## Особенности запуска Bash-скрпита
 
