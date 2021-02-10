@@ -1,4 +1,5 @@
 
+
 # NpServerSettings
 
 Данный модуль добавляет страницу "NetPing Server Settings" в интерфейс Zabbix.
@@ -16,6 +17,7 @@
 9. Пользуйтесь модулем.
 
 Установка модуля и демонстрация его работы показаны в данном скринкасте:
+![enter image description here](https://github.com/antoncom/NpServerSettings/blob/main/screenshorts/simplescreenrecorder-2021-02-10_10.53.46.gif)
 
 ## Валидация данных в браузере
 
