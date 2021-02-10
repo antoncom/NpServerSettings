@@ -6,11 +6,12 @@ require_once './include/maintenances.inc.php';
 require_once './include/forms.inc.php';
 require_once './include/users.inc.php';
 
-$page['title'] = _('Maintenance one clic');
-$page['file'] = 'maintenance_oneclic.php';
-$page['scripts'] = ['class.calendar.js'];
-$page['type'] = detect_page_type();
+$page['title'] = _('NetPing Server Settings');
+// $page['file'] = 'maintenance_oneclic.php';
+// $page['scripts'] = ['class.calendar.js'];
+// $page['type'] = detect_page_type();
 
+// For debug needs only
 function console($data) {
 	# print_r($data);
 	if(gettype($data) == 'object' || gettype($data) == 'array') {
@@ -22,13 +23,17 @@ function console($data) {
 }
 
 require_once './include/page_header.php';
-$this->includeJsFile('nearley.js.php');
-$this->includeJsFile('ipv4.js.php');
+$this->includeJsFile('validator/nearley.js.php');
+$this->includeJsFile('validator/ipv4.js.php');
+$this->includeJsFile('validator/ip_single.js.php');
+$this->includeJsFile('validator/ip_list.js.php');
 $this->includeJsFile('helper.js.php');
 $this->includeJsFile('styles.js.php');
 
 
 $connectionName = "enp0s3"; // you must change this value according to your server setting
+$scriptFolder = '/usr/share/zabbix/modules/NpServerSettings/bash';
+
 $nmcli_out = [];
 $net = [];
 $dhcp_mode = "auto";
@@ -40,10 +45,10 @@ $dns2 = "";
 $messages = [];
 $resCodeOnGet = 0;
 $resCodeOnSet = 0;
-//print_r($_POST);
+
 
 if (sizeof($_POST) == 0) {
-	$comm = '/usr/share/zabbix/modules/np_server_settings.sh --device="enp0s3" --command=get';
+	$comm = $scriptFolder . '/np_server_settings.sh --device="' . $connectionName . '" --command=get';
 	exec($comm, $nmcli_out, $resCodeOnGet);
 
 	foreach($nmcli_out as $n) {
@@ -61,66 +66,77 @@ if (sizeof($_POST) == 0) {
 		$dhcp_mode = $net['ipv4.method'];
 	}
 	if(array_key_exists('ipv4.addresses', $net)) {
-		$ipv4 = $net['ipv4.addresses'];
+		$ipv4 = ($net['ipv4.addresses'] != "--") ? $net['ipv4.addresses'] : "";
 	}
 	if(array_key_exists('ipv4.gateway', $net)) {
-		$gateway = $net['ipv4.gateway'];
+		$gateway = ($net['ipv4.gateway'] != "--") ? $net['ipv4.gateway'] : "";
 	}
 
 	if(array_key_exists('ipv4.dns', $net)) {
 		$dns_arr = preg_split("/\,/", $net['ipv4.dns']);
-		$dns1 = (isset($dns_arr[0])) ? $dns_arr[0] : "";
+		$dns1 = (isset($dns_arr[0]) && $dns_arr[0] != "--") ? $dns_arr[0] : "";
 		$dns2 = (isset($dns_arr[1])) ? $dns_arr[1] : "";
 	}
 } elseif (sizeof($_POST) > 0) {
-	$comm = '/usr/share/zabbix/modules/np_server_settings.sh --device="enp0s3" --command=set';
+	$comm = $scriptFolder . '/np_server_settings.sh --device="' . $connectionName . '" --command=set';
 
-	if(isset($_POST['dhcp_mode']) && $dhcp_mode != $_POST['dhcp_mode']) {
+	if(isset($_POST['dhcp_mode'])) {
 		$comm = $comm . ' --dhcp=' . $_POST['dhcp_mode'];
 	}
-	if(isset($_POST['ipv4']) && $ipv4 != $_POST['ipv4']) {
+	if(isset($_POST['ipv4']) || $_POST['ipv4'] == "") {
 		$comm = $comm .' --ipv4=' . $_POST['ipv4'];
 	}
-	if(isset($_POST['gateway']) && $gateway != $_POST['gateway']) {
+	if(isset($_POST['gateway']) ||  $_POST['gateway'] == "") {
 		$comm = $comm . ' --gateway=' . $_POST['gateway'];
 	}
-	if(isset($_POST['dns1']) && $dns1 != $_POST['dns1']) {
+	if(isset($_POST['dns1']) || $_POST['dns1'] == "") {
 		$comm = $comm . ' --dns1=' . $_POST['dns1'];
 	}
-	if(isset($_POST['dns2']) && $_POST['dns2'] != "" && $dns2 != $_POST['dns2']) {
+	if(isset($_POST['dns2']) || $_POST['dns2'] == "") {
 		$comm = $comm . ' --dns2=' . $_POST['dns2'];		
 	}
-	
+
 	exec($comm, $nmcli_out, $resCodeOnSet);
 
-	
-	$comm = '/usr/share/zabbix/modules/np_server_settings.sh --device="enp0s3" --command=get';
+
+	// Let read the settings again after new settings were applied
+
+	$comm = $scriptFolder . '/np_server_settings.sh --device="' . $connectionName . '" --command=get';
 	exec($comm, $nmcli_out, $resCodeOnGet);
 
 	foreach($nmcli_out as $n) {
 		if(strpos($n, "ipv4.") !== false) {
 			list($p, $v) = preg_split("/\s+/", $n);
 			$net[substr($p, 0, -1)] = $v;
+		} elseif (strpos($n, "Error:") !== false) {
+			$errorMsgs[] = $n;
 		} else {
 			$messages[] = $n;
 		}
 	}
+	/*
+	echo "<pre>";
+	print_r($nmcli_out);
+	echo "</pre>";
+	*/
 
 	if(array_key_exists('ipv4.method', $net)) {
 		$dhcp_mode = $net['ipv4.method'];
 	}
 	if(array_key_exists('ipv4.addresses', $net)) {
-		$ipv4 = $net['ipv4.addresses'];
+		$ipv4 = ($net['ipv4.addresses'] != "--") ? $net['ipv4.addresses'] : "";
 	}
 	if(array_key_exists('ipv4.gateway', $net)) {
-		$gateway = $net['ipv4.gateway'];
+		$gateway = ($net['ipv4.gateway'] != "--") ? $net['ipv4.gateway'] : "";
 	}
 
 	if(array_key_exists('ipv4.dns', $net)) {
+
 		$dns_arr = preg_split("/\,/", $net['ipv4.dns']);
-		$dns1 = (isset($dns_arr[0])) ? $dns_arr[0] : "";
+		$dns1 = (isset($dns_arr[0]) && $dns_arr[0] != "--") ? $dns_arr[0] : "";
 		$dns2 = (isset($dns_arr[1])) ? $dns_arr[1] : "";
 	}
+
 
 }
 
@@ -188,6 +204,7 @@ if (sizeof($_POST) == 0) {
 
 
 
+
 <br/>
 <form method="post">
 	<div id="tabs" class="table-forms-container ui-tabs ui-widget ui-widget-content ui-corner-all" style="visibility: visible;">
@@ -210,7 +227,7 @@ if (sizeof($_POST) == 0) {
 					</div>
 					<div class="table-forms-td-right">
 						<input type="text" id="ipv4" name="ipv4" disabled="true" value="<?php echo $ipv4; ?>" maxlength="255" style="width: 270px;">
-						<?php $exampleIpv4 = (isset($ipv4)) ? $ipv4 : "192.168.0.2/24"; ?>
+						<?php $exampleIpv4 = ((isset($ipv4) && $ipv4) != "") ? $ipv4 : "192.168.0.2/24"; ?>
 						<div class="error" style="display: none; color: red;">Укажите корректный IP / маску, например: <a href="javascript: $('#ipv4').val('<?php echo $exampleIpv4; ?>'); validateIpV4('<?php echo $exampleIpv4; ?>');"><?php echo $exampleIpv4; ?></a></div>
 					</div>
 				</li>
@@ -220,6 +237,8 @@ if (sizeof($_POST) == 0) {
 					</div>
 					<div class="table-forms-td-right">
 						<input type="text" id="gateway" name="gateway" value="<?php echo $gateway; ?>" maxlength="255" style="width: 270px;">
+						<?php $exampleGateway = (isset($gateway) && $gateway != "") ? $gateway : "192.168.0.1"; ?>
+						<div class="error" style="display: none; color: red;">Укажите корректный IP, например: <a href="javascript: $('#gateway').val('<?php echo $exampleGateway; ?>'); validateIpGateway('<?php echo $exampleGateway; ?>');"><?php echo $exampleGateway; ?></a></div>
 					</div>
 				</li>
 				<li>
@@ -228,6 +247,8 @@ if (sizeof($_POST) == 0) {
 					</div>
 					<div class="table-forms-td-right">
 						<input type="text" id="dns1" name="dns1" value="<?php echo $dns1; ?>" maxlength="255" style="width: 270px;">
+						<?php $exampleDns1 = (isset($dns1) && $dns1 != "") ? $dns1 : "8.8.8.8"; ?>
+						<div class="error" style="display: none; color: red;">Укажите корректный DNS-адрес, например: <a href="javascript: $('#dns1').val('<?php echo $exampleDns1; ?>'); validateIpDns1('<?php echo $exampleDns1; ?>');"><?php echo $exampleDns1; ?></a></div>
 					</div>
 				</li>
 				<li>
@@ -236,6 +257,8 @@ if (sizeof($_POST) == 0) {
 					</div>
 					<div class="table-forms-td-right">
 						<input type="text" id="dns2" name="dns2" value="<?php echo $dns2; ?>" maxlength="255" style="width: 270px;">
+						<?php $exampleDns2 = (isset($dns2) && $dns2 != "") ? $dns2 : "77.88.8.88"; ?>
+						<div class="error" style="display: none; color: red;">Укажите корректные DNS-адреса, например: <a href="javascript: $('#dns2').val('<?php echo $exampleDns2; ?>'); validateIpDns2('<?php echo $exampleDns2; ?>');"><?php echo $exampleDns2; ?></a></div>
 					</div>
 				</li>
 			</ul>

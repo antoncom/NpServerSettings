@@ -1,16 +1,16 @@
 {
     "manifest_version": 1.0,
-    "id": "maintenance_one_clic",
-    "name": "Maintenance One Clic Custom",
+    "id": "np_server_settings",
+    "name": "NetPing Server Settings",
     "version": "1.0",
-    "namespace": "MaintenanceOneClic",
-    "author": "Mickael Martin",
-    "url": "https://framagit.org/zabbix-modules/zabbix-one-clic-maintenance",
-    "description": "Add menu to add fast maintenance.",
+    "namespace": "NpServerSettings",
+    "author": "Anton Gavrilyuk",
+    "url": "https://github.com/antoncom/np_server_settings",
+    "description": "The module allows user to change Network settings: ipv4, dhcp (auto or manual), gate, dns. Then the Network interface will be down and up.",
     "actions": {
-        "maintenanceoneclic.view": {
-            "class": "MaintenanceOneClicView",
-            "view": "module.maintenanceoneclic.view"
+        "npserversettings.view": {
+            "class": "NpServerSettingsView",
+            "view": "module.npserversettings.view"
         }
     }
 }

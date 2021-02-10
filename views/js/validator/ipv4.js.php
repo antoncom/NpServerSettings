@@ -1,3 +1,5 @@
+<script type="text/javascript">
+
 // Generated automatically by nearley, version 2.20.1
 // http://github.com/Hardmath123/nearley
 (function () {
@@ -25,3 +27,7 @@ if (typeof module !== 'undefined'&& typeof module.exports !== 'undefined') {
    window.grammar = grammar;
 }
 })();
+    
+
+
+</script>

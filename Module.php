@@ -1,6 +1,6 @@
 <?php declare(strict_types = 1);
  
-namespace Modules\MaintenanceOneClic;
+namespace Modules\NpServerSettings;
  
 use APP;
 use CController as CAction;
@@ -19,7 +19,7 @@ class Module extends \Core\CModule {
 			->findOrAdd(_('Configuration'))
 				->getSubmenu()
 					->insertAfter(_('Maintenance'),((new \CMenuItem(_('NetPing Server Settings')))
-						->setAction('maintenanceoneclic.view'))
+						->setAction('npserversettings.view'))
 					);
 	}
  

@@ -25,16 +25,16 @@
 # Connection successfully activated (D-Bus active path: /org/freedesktop/NetworkManager/ActiveConnection/4)
 # Connection 'enp0s3' deactivation failed : Not authorized to deactivate connections.
 
-device=0
-command=0
-dhcp=auto
+device=""
+command="get"
+dhcp="auto"
 
-ipv4=0
-gateway=0
-dns1=0
-dns2=0
+ipv4=""
+gateway=""
+dns1=""
+dns2=""
 
-msg_filter=''
+msg_filter=""
 
 err_code=0
 
@@ -44,7 +44,7 @@ err_code=0
 
 procParmL() 
 { 
-   [ -z "$1" ] && return 1 
+   # [ -z "$1" ] && return 1 
    if [ "${2#$1=}" != "$2" ] ; then 
       cRes="${2#$1=}" 
       return 0 
@@ -76,54 +76,42 @@ while [ 1 ] ; do
    shift
 done
 
-# addMsgFilter is required to assemble filtering mask which is applied to output data
-addMsgFilter()
-{
 
-	if [ -z $msg_filter ] ; then
-		msg_filter="$1"
-	else
-		msg_filter="${msg_filter}|$1"
-	fi
-}
+################
+#  MAIN STAFF  #
+################
+
+# Read network settings
 
 if [ $command == "get" ] ; then
+
 	msg_filter="ipv4.addresses:|ipv4.dns:|ipv4.gateway:|ipv4.method:"
 	nmcli conn show $device | grep -E "${msg_filter}"
+
+# Set network settings
+
 elif [ $command == "set" ] ; then
-	if [ $ipv4 != 0 ] ; then
+
+	if [ $dhcp == "auto" ] ; then 
+		nmcli conn modify "$device" ipv4.method $dhcp
+		nmcli conn modify "$device" ipv4.address ""
+		nmcli conn modify "$device" ipv4.gateway ""
+	elif [ $dhcp == "manual" ] ; then
 		nmcli conn modify "$device" ipv4.method $dhcp
 		nmcli conn modify "$device" ipv4.address $ipv4
-		addMsgFilter "ipv4.addresses:"
-		addMsgFilter "ipv4.method:"
-	else
-		nmcli conn modify "$device" ipv4.method $dhcp
-		addMsgFilter "ipv4.method:"
-	fi
-	if [ $dhcp != 0 ] ; then
-		nmcli conn modify "$device" ipv4.method $dhcp
-		addMsgFilter "ipv4.method:"
-	fi
-	if [ $gateway != 0 ] ; then
 		nmcli conn modify "$device" ipv4.gateway $gateway
-		addMsgFilter "ipv4.gateway:"
 	fi
-	if [ $dns1 != 0 ] ; then
-		nmcli conn modify "$device" ipv4.dns $dns1
-		addMsgFilter "ipv4.dns:"
+	
+	nmcli conn modify "$device" ipv4.dns "$dns1"
 
-	fi
-	if [ $dns2 != 0 ] ; then
-		nmcli conn modify "$device" ipv4.ignore-auto-dns yes
-		nmcli conn modify "$device" +ipv4.dns $dns2
-		nmcli conn modify "$device" ipv4.ignore-auto-dns no
-		addMsgFilter "ipv4.dns:"
-	fi
+	nmcli conn modify "$device" ipv4.ignore-auto-dns yes
+	nmcli conn modify "$device" +ipv4.dns "$dns2"
+	nmcli conn modify "$device" ipv4.ignore-auto-dns no
+
+
+# Apply network settings
 
 	nmcli connection down $device
 	nmcli connection up $device
-	
-	#msg_filter="ipv4.addresses:|ipv4.dns:|ipv4.gateway:|ipv4.method:"
-	#nmcli conn show $device | grep -E "${msg_filter}"
 
 fi
