@@ -5,7 +5,7 @@
     "version": "1.0",
     "namespace": "NpServerSettings",
     "author": "Anton Gavrilyuk",
-    "url": "https://github.com/antoncom/np_server_settings",
+    "url": "https://github.com/antoncom/NpServerSettings",
     "description": "The module allows user to change Network settings: ipv4, dhcp (auto or manual), gate, dns. Then the Network interface will be down and up.",
     "actions": {
         "npserversettings.view": {
